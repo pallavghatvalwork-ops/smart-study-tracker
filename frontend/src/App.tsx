@@ -1,5 +1,6 @@
 import { FloatingTimerWidget } from './components/FloatingTimerWidget'
 import { MemoryDecayPanel } from './components/MemoryDecayPanel'
+import { StudyPresence } from './components/StudyPresence'
 import { StreakFlameCard } from './components/StreakFlameCard'
 import { TodayPlan } from './components/TodayPlan'
 import { TopicGapAnalyzer } from './components/TopicGapAnalyzer'
@@ -25,7 +26,10 @@ function App() {
               ignites into a flame.
             </p>
           </div>
-          <WeeklyRecapExport />
+          <div className="flex items-center gap-2">
+            <StudyPresence />
+            <WeeklyRecapExport />
+          </div>
         </div>
       </header>
 

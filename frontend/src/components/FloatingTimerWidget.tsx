@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTimer } from '../hooks/useTimer'
 import { useAmbientStore } from '../store/useAmbientStore'
+import { useFocusPresenceStore } from '../store/useFocusPresenceStore'
 
 type SoundKey = 'rain' | 'cafe' | 'white'
 
@@ -31,6 +32,7 @@ const sounds: SoundMeta[] = [
 export function FloatingTimerWidget() {
   const { formatted, isRunning, progress, start, pause, reset } = useTimer(25 * 60)
   const { isPlaying, levels, togglePlaying, setLevel } = useAmbientStore()
+  const setFocusing = useFocusPresenceStore((state) => state.setFocusing)
 
   const [position, setPosition] = useState({ x: 24, y: 24 })
   const [dragging, setDragging] = useState(false)
@@ -63,6 +65,10 @@ export function FloatingTimerWidget() {
       }
     })
   }, [isPlaying, levels])
+
+  useEffect(() => {
+    setFocusing(isRunning)
+  }, [isRunning, setFocusing])
 
   useEffect(() => {
     const handleMove = (event: MouseEvent) => {
