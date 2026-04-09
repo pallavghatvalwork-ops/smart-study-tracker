@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { FloatingTimerWidget } from './components/FloatingTimerWidget'
 import { MemoryDecayPanel } from './components/MemoryDecayPanel'
 import { StudyPresence } from './components/StudyPresence'
@@ -7,11 +8,48 @@ import { TopicGapAnalyzer } from './components/TopicGapAnalyzer'
 import { WeeklyRecapExport } from './components/WeeklyRecapExport'
 import { useStreak } from './hooks/useStreak'
 
+type DayTheme = 'morning' | 'afternoon' | 'night'
+
+function getThemeByHour(hour: number): DayTheme {
+  if (hour >= 5 && hour < 12) {
+    return 'morning'
+  }
+
+  if (hour >= 12 && hour < 19) {
+    return 'afternoon'
+  }
+
+  return 'night'
+}
+
 function App() {
   const { streak, loading } = useStreak()
+  const [theme, setTheme] = useState<DayTheme>(() => getThemeByHour(new Date().getHours()))
+
+  useEffect(() => {
+    const updateTheme = () => setTheme(getThemeByHour(new Date().getHours()))
+    const timer = window.setInterval(updateTheme, 60 * 1000)
+    updateTheme()
+
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const themeClass = useMemo(() => {
+    if (theme === 'morning') {
+      return 'bg-gradient-to-br from-sky-100 via-cyan-50 to-white'
+    }
+
+    if (theme === 'afternoon') {
+      return 'bg-gradient-to-br from-amber-100 via-yellow-50 to-orange-100'
+    }
+
+    return 'bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-slate-100'
+  }, [theme])
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-8 sm:px-8 sm:py-10">
+    <main
+      className={`mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-8 transition-colors duration-1000 sm:px-8 sm:py-10 ${themeClass}`}
+    >
       <header className="mb-8 rounded-3xl border border-white/60 bg-white/65 p-6 shadow-sm backdrop-blur sm:mb-10 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
