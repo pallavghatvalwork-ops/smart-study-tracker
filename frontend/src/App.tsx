@@ -1,5 +1,6 @@
 import { FloatingTimerWidget } from './components/FloatingTimerWidget'
 import { StreakFlameCard } from './components/StreakFlameCard'
+import { TopicGapAnalyzer } from './components/TopicGapAnalyzer'
 import { useStreak } from './hooks/useStreak'
 
 function App() {
@@ -42,6 +43,10 @@ function App() {
             </li>
           </ul>
         </aside>
+      </section>
+
+      <section className="mt-5">
+        <TopicGapAnalyzer />
       </section>
 
       <FloatingTimerWidget />
