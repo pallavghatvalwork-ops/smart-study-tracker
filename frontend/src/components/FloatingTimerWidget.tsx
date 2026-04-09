@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useTimer } from '../hooks/useTimer'
 import { useAmbientStore } from '../store/useAmbientStore'
 import { useFocusPresenceStore } from '../store/useFocusPresenceStore'
@@ -33,6 +34,10 @@ export function FloatingTimerWidget() {
   const { formatted, isRunning, progress, start, pause, reset } = useTimer(25 * 60)
   const { isPlaying, levels, togglePlaying, setLevel } = useAmbientStore()
   const setFocusing = useFocusPresenceStore((state) => state.setFocusing)
+  const [selectedMinutes, setSelectedMinutes] = useState(25)
+  const [showPledgeModal, setShowPledgeModal] = useState(false)
+  const [pledgeDraft, setPledgeDraft] = useState('')
+  const [activePledge, setActivePledge] = useState('')
 
   const [position, setPosition] = useState({ x: 24, y: 24 })
   const [dragging, setDragging] = useState(false)
@@ -136,10 +141,47 @@ export function FloatingTimerWidget() {
         </div>
       </div>
 
+      {activePledge && (
+        <div className="mt-3 -rotate-1 rounded-lg border border-amber-200 bg-amber-100 px-3 py-2 text-xs text-amber-900 shadow-sm">
+          <p className="font-semibold uppercase tracking-[0.12em] text-amber-800">Commitment Note</p>
+          <p className="mt-1">{activePledge}</p>
+        </div>
+      )}
+
+      <div className="mt-3">
+        <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Session Length</label>
+        <select
+          className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm text-slate-700"
+          value={selectedMinutes}
+          onChange={(event) => {
+            const minutes = Number(event.target.value)
+            setSelectedMinutes(minutes)
+            reset(minutes * 60)
+          }}
+        >
+          <option value={25}>25 min</option>
+          <option value={45}>45 min</option>
+          <option value={60}>60 min</option>
+          <option value={90}>90 min</option>
+        </select>
+      </div>
+
       <div className="mt-3 flex gap-2">
         <button
           className="flex-1 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white"
-          onClick={isRunning ? pause : start}
+          onClick={() => {
+            if (isRunning) {
+              pause()
+              return
+            }
+
+            if (selectedMinutes > 45 && !activePledge) {
+              setShowPledgeModal(true)
+              return
+            }
+
+            start()
+          }}
         >
           {isRunning ? 'Pause' : 'Start'}
         </button>
@@ -188,6 +230,60 @@ export function FloatingTimerWidget() {
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {showPledgeModal && (
+          <motion.div
+            className="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-slate-900/45 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="w-full rounded-xl bg-white p-4 shadow-xl"
+              initial={{ y: 20, opacity: 0, scale: 0.98 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 16, opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.24 }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Commitment Pledge</p>
+              <h4 className="mt-2 font-['Space_Grotesk'] text-lg font-bold text-slate-900">
+                What is one thing you will finish in this session?
+              </h4>
+              <textarea
+                className="mt-3 h-24 w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                value={pledgeDraft}
+                onChange={(event) => setPledgeDraft(event.target.value)}
+                placeholder="Example: Finish 2 full recursion sheets"
+              />
+
+              <div className="mt-3 flex justify-end gap-2">
+                <button
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                  onClick={() => setShowPledgeModal(false)}
+                >
+                  Later
+                </button>
+                <button
+                  className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white"
+                  onClick={() => {
+                    const normalized = pledgeDraft.trim()
+                    if (!normalized) {
+                      return
+                    }
+
+                    setActivePledge(normalized)
+                    setShowPledgeModal(false)
+                    start()
+                  }}
+                >
+                  Commit & Start
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
