@@ -3,6 +3,7 @@ import { MemoryDecayPanel } from './components/MemoryDecayPanel'
 import { StreakFlameCard } from './components/StreakFlameCard'
 import { TodayPlan } from './components/TodayPlan'
 import { TopicGapAnalyzer } from './components/TopicGapAnalyzer'
+import { WeeklyRecapExport } from './components/WeeklyRecapExport'
 import { useStreak } from './hooks/useStreak'
 
 function App() {
@@ -11,16 +12,21 @@ function App() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-8 rounded-3xl border border-white/60 bg-white/65 p-6 shadow-sm backdrop-blur sm:mb-10 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-          Smart Study Tracker
-        </p>
-        <h1 className="mt-3 font-['Space_Grotesk'] text-3xl font-bold text-slate-900 sm:text-5xl">
-          Momentum Board
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">
-          Visualize streak energy in real-time. As your consistency rises, the frozen core ignites
-          into a flame.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              Smart Study Tracker
+            </p>
+            <h1 className="mt-3 font-['Space_Grotesk'] text-3xl font-bold text-slate-900 sm:text-5xl">
+              Momentum Board
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-slate-600 sm:text-base">
+              Visualize streak energy in real-time. As your consistency rises, the frozen core
+              ignites into a flame.
+            </p>
+          </div>
+          <WeeklyRecapExport />
+        </div>
       </header>
 
       <section className="grid gap-5 lg:grid-cols-[1.1fr,0.9fr]">
