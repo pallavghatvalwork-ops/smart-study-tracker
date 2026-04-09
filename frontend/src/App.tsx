@@ -1,4 +1,5 @@
 import { FloatingTimerWidget } from './components/FloatingTimerWidget'
+import { MemoryDecayPanel } from './components/MemoryDecayPanel'
 import { StreakFlameCard } from './components/StreakFlameCard'
 import { TodayPlan } from './components/TodayPlan'
 import { TopicGapAnalyzer } from './components/TopicGapAnalyzer'
@@ -52,6 +53,10 @@ function App() {
 
       <section className="mt-5">
         <TodayPlan />
+      </section>
+
+      <section className="mt-5">
+        <MemoryDecayPanel />
       </section>
 
       <FloatingTimerWidget />
