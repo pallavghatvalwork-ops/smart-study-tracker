@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { findNextBestSlot } from '../utils/scheduler'
 import type { CalendarBusyBlock, ProductivityMap, StudyTask } from '../utils/scheduler'
+import { useInteractionStore } from '../store/useInteractionStore'
+
+type PlanTask = StudyTask & {
+  completing?: boolean
+}
 
 function formatDateTime(value: Date): string {
   return value.toLocaleString([], {
@@ -63,7 +68,9 @@ const productivityMap: ProductivityMap = {
 }
 
 export function TodayPlan() {
-  const [tasks, setTasks] = useState<StudyTask[]>(() => {
+  const triggerSnapFeedback = useInteractionStore((state) => state.triggerSnapFeedback)
+
+  const [tasks, setTasks] = useState<PlanTask[]>(() => {
     const now = new Date()
 
     return [
@@ -89,6 +96,25 @@ export function TodayPlan() {
   })
 
   const calendar = useMemo(() => buildCalendar(), [])
+
+  const completeTask = (task: PlanTask) => {
+    triggerSnapFeedback()
+
+    setTasks((previous) =>
+      previous.map((item) =>
+        item.id === task.id
+          ? {
+              ...item,
+              completing: true,
+            }
+          : item,
+      ),
+    )
+
+    window.setTimeout(() => {
+      setTasks((previous) => previous.filter((item) => item.id !== task.id))
+    }, 420)
+  }
 
   const reschedule = (task: StudyTask) => {
     const nextSlot = findNextBestSlot(task, calendar, productivityMap)
@@ -120,25 +146,44 @@ export function TodayPlan() {
         {tasks.map((task) => (
           <article
             key={task.id}
-            className="flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 px-4 py-3"
+            className={`flex items-center justify-between rounded-2xl border border-white/70 bg-white/70 px-4 py-3 ${task.completing ? 'snap-row-out' : ''}`}
           >
-            <div>
-              <h3 className="font-semibold text-slate-900">{task.title}</h3>
-              <p className="text-sm text-slate-600">
-                {task.durationMin} mins • {formatDateTime(task.scheduledAt)}
-              </p>
+            <div className="flex items-start gap-3">
+              <button
+                title="Mark complete"
+                aria-label="Mark complete"
+                className={`mt-0.5 grid h-6 w-6 place-items-center rounded-full border border-slate-300 bg-white text-xs text-slate-600 ${task.completing ? 'snap-check' : ''}`}
+                onClick={() => completeTask(task)}
+                disabled={Boolean(task.completing)}
+              >
+                ✓
+              </button>
+              <div>
+                <h3 className="font-semibold text-slate-900">{task.title}</h3>
+                <p className="text-sm text-slate-600">
+                  {task.durationMin} mins • {formatDateTime(task.scheduledAt)}
+                </p>
+              </div>
             </div>
+
             <button
               title="Find next best slot"
               aria-label="Find next best slot"
               className="rounded-full border border-slate-300 bg-white p-2 text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
               onClick={() => reschedule(task)}
+              disabled={Boolean(task.completing)}
             >
               ↻
             </button>
           </article>
         ))}
       </div>
+
+      {tasks.length === 0 && (
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+          All tasks completed. Crisp execution.
+        </div>
+      )}
     </section>
   )
 }
