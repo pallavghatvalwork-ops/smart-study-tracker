@@ -1,3 +1,4 @@
+import { FloatingTimerWidget } from './components/FloatingTimerWidget'
 import { StreakFlameCard } from './components/StreakFlameCard'
 import { useStreak } from './hooks/useStreak'
 
@@ -42,6 +43,8 @@ function App() {
           </ul>
         </aside>
       </section>
+
+      <FloatingTimerWidget />
     </main>
   )
 }
