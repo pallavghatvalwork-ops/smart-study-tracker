@@ -5,8 +5,8 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 app = Flask(__name__)
 app.secret_key = "super_secret_key"  # Needed for Flask sessions
 
-sessions = []
 USERS_FILE = "users.json"
+SESSIONS_FILE = "sessions.json"
 
 def load_users():
     if not os.path.exists(USERS_FILE):
@@ -17,6 +17,30 @@ def load_users():
 def save_users(users):
     with open(USERS_FILE, "w") as f:
         json.dump(users, f, indent=4)
+
+
+def load_sessions():
+    if not os.path.exists(SESSIONS_FILE):
+        return []
+    with open(SESSIONS_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_sessions(session_data):
+    with open(SESSIONS_FILE, "w") as f:
+        json.dump(session_data, f, indent=4)
+
+
+def get_current_username():
+    return session.get("username")
+
+
+def get_user_sessions(username):
+    # Include legacy sessions without username for backward compatibility.
+    return [s for s in sessions if s.get("username") == username or "username" not in s]
+
+
+sessions = load_sessions()
 
 @app.route("/")
 def home():
@@ -66,25 +90,72 @@ def logout():
 
 @app.route("/add_session", methods=["POST"])
 def add_session():
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+
     data = request.json
-    duration = data.get("duration")
-    subject = data.get("subject")
+    duration = data.get("duration", 0)
+    subject = (data.get("subject") or "").strip()
+
+    try:
+        duration = float(duration)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Duration must be a number"}), 400
+
+    if not subject:
+        return jsonify({"error": "Subject is required"}), 400
+
+    if duration <= 0:
+        return jsonify({"error": "Duration must be greater than 0"}), 400
 
     sessions.append({
+        "username": username,
         "subject": subject,
         "duration": duration
     })
+    save_sessions(sessions)
 
     return jsonify({"message": "Session added!"})
 
 @app.route("/get_sessions")
 def get_sessions():
-    return jsonify(sessions)
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+    return jsonify(get_user_sessions(username))
 
 @app.route("/total_time")
 def total_time():
-    total = sum(s["duration"] for s in sessions)
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+    total = sum(s["duration"] for s in get_user_sessions(username))
     return jsonify({"total": total})
+
+
+@app.route("/analytics")
+def analytics():
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_sessions = get_user_sessions(username)
+    total = sum(s["duration"] for s in user_sessions)
+    count = len(user_sessions)
+    avg = total / count if count else 0
+
+    subject_totals = {}
+    for session_item in user_sessions:
+        subject = session_item.get("subject", "Unknown")
+        subject_totals[subject] = subject_totals.get(subject, 0) + session_item.get("duration", 0)
+
+    return jsonify({
+        "totalStudyTime": total,
+        "subjectWiseStudyTime": subject_totals,
+        "numberOfSessions": count,
+        "averageSessionDuration": avg,
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
