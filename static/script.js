@@ -50,6 +50,43 @@ function stopSession() {
     startTime = null;
 }
 
+function toggleEditor(editorId, visible) {
+    const editor = document.getElementById(editorId);
+    if (editor) {
+        editor.style.display = visible ? "flex" : "none";
+    }
+}
+
+function saveEdit(sessionId) {
+    const subjectInput = document.getElementById(`subject-${sessionId}`);
+    const durationInput = document.getElementById(`duration-${sessionId}`);
+
+    const subject = subjectInput.value.trim();
+    const duration = Number(durationInput.value);
+
+    fetch(`/edit_session/${sessionId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ subject, duration })
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.error || "Unable to update session");
+        }
+        return data;
+    })
+    .then(() => {
+        document.getElementById("status").innerText = "Session updated.";
+        loadSessions();
+    })
+    .catch((error) => {
+        document.getElementById("status").innerText = error.message;
+    });
+}
+
 function loadSessions() {
     fetch("/get_sessions")
     .then(async (res) => {
@@ -65,7 +102,56 @@ function loadSessions() {
 
         data.forEach(s => {
             let li = document.createElement("li");
-            li.innerText = `${s.subject} - ${formatSeconds(s.duration)} sec`;
+
+            const row = document.createElement("div");
+            row.className = "session-row";
+
+            const text = document.createElement("span");
+            text.innerText = `${s.subject} - ${formatSeconds(s.duration)} sec`;
+
+            const editButton = document.createElement("button");
+            editButton.className = "edit";
+            editButton.innerText = "Edit";
+            editButton.onclick = () => toggleEditor(`editor-${s.id}`, true);
+
+            row.appendChild(text);
+            row.appendChild(editButton);
+
+            const editor = document.createElement("div");
+            editor.className = "edit-form";
+            editor.id = `editor-${s.id}`;
+            editor.style.display = "none";
+
+            const subjectInput = document.createElement("input");
+            subjectInput.id = `subject-${s.id}`;
+            subjectInput.value = s.subject;
+            subjectInput.placeholder = "Subject";
+
+            const durationInput = document.createElement("input");
+            durationInput.id = `duration-${s.id}`;
+            durationInput.type = "number";
+            durationInput.step = "0.01";
+            durationInput.min = "0.01";
+            durationInput.value = formatSeconds(s.duration);
+            durationInput.placeholder = "Duration (sec)";
+
+            const saveButton = document.createElement("button");
+            saveButton.className = "save";
+            saveButton.innerText = "Save";
+            saveButton.onclick = () => saveEdit(s.id);
+
+            const cancelButton = document.createElement("button");
+            cancelButton.className = "cancel";
+            cancelButton.innerText = "Cancel";
+            cancelButton.onclick = () => toggleEditor(`editor-${s.id}`, false);
+
+            editor.appendChild(subjectInput);
+            editor.appendChild(durationInput);
+            editor.appendChild(saveButton);
+            editor.appendChild(cancelButton);
+
+            li.appendChild(row);
+            li.appendChild(editor);
             list.appendChild(li);
         });
     })
