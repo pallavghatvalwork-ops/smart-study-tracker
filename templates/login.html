@@ -2,41 +2,49 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Smart Study Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .flash {
-            color: red;
-            margin-bottom: 15px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="auth-page">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
 
-    <div class="container">
-        <h1>Login</h1>
+    <main class="auth-shell">
+        <section class="auth-card glass">
+            <p class="eyebrow">Welcome Back</p>
+            <h1>Login</h1>
+            <p class="auth-subtitle">Continue your focused study streak.</p>
 
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <div class="flash">
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash">
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
-        <form method="POST" action="/login">
-            <input type="text" name="username" placeholder="Username" required>
-            <br><br>
-            <input type="password" name="password" placeholder="Password" required>
-            <br><br>
-            <button type="submit" class="start">Login</button>
-        </form>
+            <form method="POST" action="/login" class="auth-form">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" placeholder="Enter your username" required>
 
-        <p style="margin-top: 15px;">Don't have an account? <a href="/register">Register here</a></p>
-    </div>
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="Enter your password" required>
+
+                <button type="submit" class="start auth-submit">Login</button>
+            </form>
+
+            <p class="auth-switch">Don't have an account? <a href="/register">Register here</a></p>
+        </section>
+    </main>
 
 </body>
 

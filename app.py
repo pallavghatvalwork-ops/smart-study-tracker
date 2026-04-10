@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+from datetime import datetime, timezone
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 
 app = Flask(__name__)
@@ -39,6 +40,20 @@ def get_current_username():
 def get_user_sessions(username):
     # Include legacy sessions without username for backward compatibility.
     return [s for s in sessions if s.get("username") == username or "username" not in s]
+
+
+def parse_iso_datetime(value):
+    if not value:
+        return None
+    normalized = str(value).replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+
+
+def now_iso_utc():
+    return datetime.now(timezone.utc).isoformat()
 
 
 def ensure_session_ids(session_data):
@@ -109,6 +124,9 @@ def add_session():
     data = request.json
     duration = data.get("duration", 0)
     subject = (data.get("subject") or "").strip()
+    notes = (data.get("notes") or "").strip()
+    started_at = data.get("startedAt") or now_iso_utc()
+    ended_at = data.get("endedAt") or now_iso_utc()
 
     try:
         duration = float(duration)
@@ -125,7 +143,11 @@ def add_session():
         "id": uuid.uuid4().hex,
         "username": username,
         "subject": subject,
-        "duration": duration
+        "duration": duration,
+        "notes": notes,
+        "startedAt": started_at,
+        "endedAt": ended_at,
+        "createdAt": now_iso_utc(),
     })
     save_sessions(sessions)
 
@@ -163,11 +185,29 @@ def analytics():
         subject = session_item.get("subject", "Unknown")
         subject_totals[subject] = subject_totals.get(subject, 0) + session_item.get("duration", 0)
 
+    longest = max((s.get("duration", 0) for s in user_sessions), default=0)
+
+    today = datetime.now(timezone.utc).date()
+    today_total = 0
+    for session_item in user_sessions:
+        session_dt = parse_iso_datetime(session_item.get("startedAt") or session_item.get("createdAt"))
+        if session_dt and session_dt.astimezone(timezone.utc).date() == today:
+            today_total += session_item.get("duration", 0)
+
+    # Balanced score across consistency (sessions), stamina (avg length), and time invested.
+    consistency_score = min(count, 8) * 6
+    stamina_score = min(avg / 1800, 1) * 35
+    effort_score = min(total / 14400, 1) * 35
+    focus_score = round(min(100, consistency_score + stamina_score + effort_score), 1)
+
     return jsonify({
         "totalStudyTime": total,
         "subjectWiseStudyTime": subject_totals,
         "numberOfSessions": count,
         "averageSessionDuration": avg,
+        "longestSession": longest,
+        "todayStudyTime": today_total,
+        "focusScore": focus_score,
     })
 
 
@@ -180,8 +220,9 @@ def edit_session(session_id):
     data = request.json or {}
     has_subject = "subject" in data
     has_duration = "duration" in data
+    has_notes = "notes" in data
 
-    if not has_subject and not has_duration:
+    if not has_subject and not has_duration and not has_notes:
         return jsonify({"error": "Provide at least one field to update"}), 400
 
     for session_item in sessions:
@@ -202,8 +243,26 @@ def edit_session(session_id):
                     return jsonify({"error": "Duration must be greater than 0"}), 400
                 session_item["duration"] = duration
 
+            if has_notes:
+                session_item["notes"] = (data.get("notes") or "").strip()
+
             save_sessions(sessions)
             return jsonify({"message": "Session updated", "session": session_item})
+
+    return jsonify({"error": "Session not found"}), 404
+
+
+@app.route("/delete_session/<session_id>", methods=["POST", "DELETE"])
+def delete_session(session_id):
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    for index, session_item in enumerate(sessions):
+        if session_item.get("id") == session_id and (session_item.get("username") == username or "username" not in session_item):
+            sessions.pop(index)
+            save_sessions(sessions)
+            return jsonify({"message": "Session deleted"})
 
     return jsonify({"error": "Session not found"}), 404
 
