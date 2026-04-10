@@ -1,16 +1,57 @@
 :root {
     --bg-1: #0e1d2d;
     --bg-2: #13273c;
+    --bg-radial-1: #1d3e62;
+    --bg-radial-2: #123a52;
     --surface: rgba(11, 22, 35, 0.72);
     --surface-2: rgba(17, 33, 52, 0.75);
     --border: rgba(197, 219, 242, 0.25);
     --text: #e5edf7;
     --muted: #9eb0c4;
+    --text-strong: #d2e8fe;
+    --link: #9fd0ff;
+    --logout-link: #d3e9ff;
     --accent: #36d3b9;
     --accent-2: #4fb1ff;
     --danger: #ff6a6a;
     --warning: #ffb84c;
     --shadow: 0 20px 50px rgba(2, 10, 20, 0.4);
+    --card-text: #bfdbfb;
+    --surface-soft: rgba(167, 206, 241, 0.12);
+    --surface-soft-border: rgba(167, 206, 241, 0.18);
+    --insight-bg: rgba(79, 177, 255, 0.13);
+    --insight-border: rgba(79, 177, 255, 0.28);
+    --track-bg: rgba(255, 255, 255, 0.18);
+    --focus-ring: 0 0 0 3px rgba(79, 177, 255, 0.2);
+    --orb-1: #36d3b9;
+    --orb-2: #4fb1ff;
+    --orb-3: #275dd8;
+}
+
+:root[data-theme="light"] {
+    --bg-1: #f4f8ff;
+    --bg-2: #e9f2ff;
+    --bg-radial-1: #d8efff;
+    --bg-radial-2: #dbe7ff;
+    --surface: rgba(255, 255, 255, 0.78);
+    --surface-2: rgba(245, 250, 255, 0.96);
+    --border: rgba(95, 135, 173, 0.22);
+    --text: #0f2740;
+    --muted: #4f6d89;
+    --text-strong: #183957;
+    --link: #1168b3;
+    --logout-link: #0d4f8a;
+    --card-text: #2e5579;
+    --surface-soft: rgba(208, 228, 249, 0.55);
+    --surface-soft-border: rgba(154, 190, 225, 0.65);
+    --insight-bg: rgba(79, 177, 255, 0.2);
+    --insight-border: rgba(79, 177, 255, 0.36);
+    --track-bg: rgba(66, 120, 169, 0.2);
+    --focus-ring: 0 0 0 3px rgba(79, 177, 255, 0.28);
+    --orb-1: #a8ebdd;
+    --orb-2: #acd9ff;
+    --orb-3: #adc2ff;
+    --shadow: 0 16px 32px rgba(16, 49, 83, 0.14);
 }
 
 * {
@@ -21,8 +62,8 @@ body {
     margin: 0;
     font-family: "Plus Jakarta Sans", sans-serif;
     color: var(--text);
-    background: radial-gradient(circle at 20% 20%, #1d3e62, transparent 36%),
-                radial-gradient(circle at 80% 0%, #123a52, transparent 32%),
+    background: radial-gradient(circle at 20% 20%, var(--bg-radial-1), transparent 36%),
+                radial-gradient(circle at 80% 0%, var(--bg-radial-2), transparent 32%),
                 linear-gradient(130deg, var(--bg-1), var(--bg-2));
     min-height: 100vh;
     position: relative;
@@ -30,7 +71,7 @@ body {
 }
 
 a {
-    color: #9fd0ff;
+    color: var(--link);
 }
 
 .bg-orb {
@@ -44,7 +85,7 @@ a {
 .orb-1 {
     width: 260px;
     height: 260px;
-    background: #36d3b9;
+    background: var(--orb-1);
     top: -30px;
     left: -40px;
 }
@@ -52,7 +93,7 @@ a {
 .orb-2 {
     width: 320px;
     height: 320px;
-    background: #4fb1ff;
+    background: var(--orb-2);
     right: -50px;
     top: 20%;
 }
@@ -60,7 +101,7 @@ a {
 .orb-3 {
     width: 280px;
     height: 280px;
-    background: #275dd8;
+    background: var(--orb-3);
     bottom: -70px;
     left: 30%;
 }
@@ -105,7 +146,7 @@ a {
 
 .auth-switch {
     margin: 16px 0 0;
-    color: #d5e8fb;
+    color: var(--text-strong);
 }
 
 .flash {
@@ -165,9 +206,21 @@ h1 {
 }
 
 .logout {
-    color: #d3e9ff;
+    color: var(--logout-link);
     text-decoration: none;
     font-weight: 700;
+}
+
+.theme-toggle {
+    margin-bottom: 10px;
+    min-width: 116px;
+}
+
+.auth-theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
 }
 
 .grid-2 {
@@ -196,7 +249,7 @@ h1 {
     display: flex;
     justify-content: space-between;
     margin: 8px 0 10px;
-    color: #d2e8fe;
+    color: var(--text-strong);
     font-size: 14px;
 }
 
@@ -204,7 +257,7 @@ h1 {
     width: 100%;
     height: 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--track-bg);
     overflow: hidden;
 }
 
@@ -226,7 +279,7 @@ h1 {
 label {
     display: block;
     margin: 14px 0 6px;
-    color: #d2e8fe;
+    color: var(--text-strong);
     font-weight: 600;
     font-size: 14px;
 }
@@ -246,7 +299,7 @@ textarea {
 input:focus,
 textarea:focus {
     border-color: var(--accent-2);
-    box-shadow: 0 0 0 3px rgba(79, 177, 255, 0.2);
+    box-shadow: var(--focus-ring);
 }
 
 textarea {
@@ -305,7 +358,7 @@ button:hover {
 .status {
     margin-top: 14px;
     font-weight: 600;
-    color: #d3e9ff;
+    color: var(--text-strong);
 }
 
 .analytics-row {
@@ -327,7 +380,7 @@ button:hover {
 
 .card p {
     margin: 0;
-    color: #bfdbfb;
+    color: var(--card-text);
     font-size: 13px;
 }
 
@@ -350,7 +403,7 @@ button:hover {
 
 .insight-score p {
     margin: 0;
-    color: #bfdbfb;
+    color: var(--card-text);
 }
 
 .insight-score h3 {
@@ -359,8 +412,8 @@ button:hover {
 
 .insight-message {
     margin-top: 10px;
-    background: rgba(79, 177, 255, 0.13);
-    border: 1px solid rgba(79, 177, 255, 0.28);
+    background: var(--insight-bg);
+    border: 1px solid var(--insight-border);
     border-radius: 12px;
     padding: 12px;
 }
@@ -368,7 +421,7 @@ button:hover {
 .subheading {
     margin-top: 16px;
     font-size: 15px;
-    color: #d6ebff;
+    color: var(--text-strong);
 }
 
 .subject-list {
@@ -381,8 +434,8 @@ button:hover {
 }
 
 .subject-list li {
-    background: rgba(167, 206, 241, 0.12);
-    border: 1px solid rgba(167, 206, 241, 0.18);
+    background: var(--surface-soft);
+    border: 1px solid var(--surface-soft-border);
     border-radius: 12px;
     padding: 8px 10px;
 }
@@ -398,7 +451,7 @@ button:hover {
     width: 100%;
     height: 8px;
     border-radius: 999px;
-    background: rgba(207, 231, 255, 0.2);
+    background: var(--track-bg);
     overflow: hidden;
 }
 
@@ -427,8 +480,8 @@ button:hover {
 }
 
 .session-item {
-    background: rgba(167, 206, 241, 0.12);
-    border: 1px solid rgba(167, 206, 241, 0.18);
+    background: var(--surface-soft);
+    border: 1px solid var(--surface-soft-border);
     border-radius: 14px;
     padding: 12px;
 }
@@ -450,7 +503,7 @@ button:hover {
 }
 
 .session-meta {
-    color: #b8d8f8;
+    color: var(--card-text);
     font-size: 13px;
 }
 
@@ -579,5 +632,10 @@ button:hover {
     .actions {
         display: grid;
         grid-template-columns: 1fr;
+    }
+
+    .auth-theme-toggle {
+        right: 12px;
+        top: 12px;
     }
 }
