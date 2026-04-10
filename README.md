@@ -82,15 +82,15 @@ Tip: add screenshots in this section for even better presentation.
 
 - Backend: Flask (Python)
 - Frontend: HTML, CSS, JavaScript
-- Data Storage (current): local JSON files
-  - users.json
-  - sessions.json
+- Data Storage: MongoDB (Atlas or local)
 
 ## Project Structure
 
 ```text
 smart-study-tracker/
   app.py
+  requirements.txt
+  .env.example
   users.json
   sessions.json
   static/
@@ -125,10 +125,25 @@ python -m venv .venv
 ### 3) Install dependencies
 
 ```bash
-pip install flask
+pip install -r requirements.txt
 ```
 
-### 4) Run the application
+### 4) Configure environment variables
+
+Create a .env file in the project root using .env.example as reference.
+
+Example:
+
+```text
+FLASK_SECRET_KEY=replace-with-a-strong-secret
+FLASK_SECURE_COOKIE=false
+MONGODB_URI=mongodb://localhost:27017/
+MONGODB_DB_NAME=smart_study_tracker
+```
+
+For MongoDB Atlas, set MONGODB_URI to your cluster connection string.
+
+### 5) Run the application
 
 ```bash
 python app.py
@@ -180,6 +195,12 @@ To become fully production-ready, the next major upgrades are:
 4. Automated test suite (unit, integration, e2e)
 5. CI/CD pipeline with linting, testing, and deployment workflows
 6. Structured logging and error monitoring
+
+## Data Migration Notes
+
+- On startup, the app auto-imports legacy data from users.json and sessions.json into MongoDB.
+- Existing session IDs are preserved when possible.
+- Passwords from legacy users are migrated into hashed form.
 
 ## Contributing
 
