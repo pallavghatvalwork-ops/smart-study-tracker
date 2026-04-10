@@ -2,52 +2,113 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Study Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
 
-    <div class="container">
-        <div style="text-align: right; margin-bottom: 10px;">
-            <span>Welcome, {{ username }}!</span> | <a href="/logout">Logout</a>
-        </div>
-
-        <h1>📚 Study Tracker</h1>
-
-        <input type="text" id="subject" placeholder="Enter subject">
-
-        <br>
-
-        <button class="start" onclick="startSession()">Start</button>
-        <button class="stop" onclick="stopSession()">Stop</button>
-
-        <h3 id="status"></h3>
-
-        <section class="analytics">
-            <h2>Study Analytics</h2>
-            <div class="analytics-grid">
-                <div class="card">
-                    <p>Total Study Time</p>
-                    <h3><span id="total">0</span> sec</h3>
-                </div>
-                <div class="card">
-                    <p>Number of Sessions</p>
-                    <h3 id="sessionCount">0</h3>
-                </div>
-                <div class="card">
-                    <p>Average Session Duration</p>
-                    <h3><span id="avgDuration">0</span> sec</h3>
-                </div>
+    <main class="app-shell">
+        <header class="topbar glass">
+            <div>
+                <p class="eyebrow">Smart Focus Dashboard</p>
+                <h1>Study Tracker</h1>
             </div>
+            <div class="topbar-right">
+                <p>Welcome, <strong>{{ username }}</strong></p>
+                <a class="logout" href="/logout">Logout</a>
+            </div>
+        </header>
 
-            <h3>Subject-wise Study Time</h3>
-            <ul id="subjectWiseList"></ul>
+        <section class="hero grid-2">
+            <article class="panel glass timer-panel">
+                <h2>Live Session Timer</h2>
+                <p class="muted">Track each second while you focus.</p>
+                <div class="timer" id="liveTimer">00:00:00</div>
+                <div class="timer-meta">
+                    <span id="timerState">Idle</span>
+                    <span id="todayProgressText">Today: 0 / 120 min</span>
+                </div>
+                <div class="progress-track" aria-label="Daily Goal Progress">
+                    <div class="progress-fill" id="goalProgressBar"></div>
+                </div>
+                <div class="goal-row">
+                    <label for="dailyGoal">Daily Goal (minutes)</label>
+                    <input type="number" id="dailyGoal" min="15" step="5" value="120">
+                    <button class="ghost" id="saveGoalBtn">Save Goal</button>
+                </div>
+                <div class="actions">
+                    <button class="start" id="startBtn">Start</button>
+                    <button class="pause" id="pauseBtn">Pause</button>
+                    <button class="resume" id="resumeBtn">Resume</button>
+                    <button class="stop" id="stopBtn">Stop & Save</button>
+                    <button class="ghost" id="resetBtn">Reset</button>
+                </div>
+            </article>
+
+            <article class="panel glass input-panel">
+                <h2>Session Details</h2>
+                <p class="muted">Tag your study session for better insights.</p>
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" placeholder="e.g. Data Structures">
+                <label for="notes">Notes</label>
+                <textarea id="notes" rows="4" placeholder="What did you cover in this session?"></textarea>
+                <p id="status" class="status">Ready to focus.</p>
+            </article>
         </section>
 
-        <h3>Sessions</h3>
-        <ul id="sessionList"></ul>
-    </div>
+        <section class="grid-2 analytics-row">
+            <article class="panel glass">
+                <h2>Analytics Snapshot</h2>
+                <div class="analytics-grid">
+                    <div class="card metric-accent-1">
+                        <p>Total Study Time</p>
+                        <h3 id="total">0h 00m 00s</h3>
+                    </div>
+                    <div class="card metric-accent-2">
+                        <p>Sessions</p>
+                        <h3 id="sessionCount">0</h3>
+                    </div>
+                    <div class="card metric-accent-3">
+                        <p>Average Session</p>
+                        <h3 id="avgDuration">0m 00s</h3>
+                    </div>
+                    <div class="card metric-accent-4">
+                        <p>Longest Session</p>
+                        <h3 id="longestSession">0m 00s</h3>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel glass">
+                <h2>Smart Insights</h2>
+                <div class="insight-score">
+                    <p>Focus Score</p>
+                    <h3><span id="focusScore">0</span>/100</h3>
+                </div>
+                <p class="insight-message" id="smartTip">Start a focused sprint to unlock insights.</p>
+                <h3 class="subheading">Subject Distribution</h3>
+                <ul id="subjectWiseList" class="subject-list"></ul>
+            </article>
+        </section>
+
+        <section class="panel glass sessions-panel">
+            <div class="sessions-header">
+                <h2>Session History</h2>
+                <button class="danger" id="clearCompletedBtn">Delete All Sessions</button>
+            </div>
+            <p class="muted">Edit sessions, refine durations, and keep data accurate.</p>
+            <ul id="sessionList" class="session-list"></ul>
+        </section>
+    </main>
 
     <script src="/static/script.js"></script>
 
