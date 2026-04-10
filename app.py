@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 
 app = Flask(__name__)
@@ -40,7 +41,18 @@ def get_user_sessions(username):
     return [s for s in sessions if s.get("username") == username or "username" not in s]
 
 
+def ensure_session_ids(session_data):
+    changed = False
+    for item in session_data:
+        if "id" not in item:
+            item["id"] = uuid.uuid4().hex
+            changed = True
+    if changed:
+        save_sessions(session_data)
+
+
 sessions = load_sessions()
+ensure_session_ids(sessions)
 
 @app.route("/")
 def home():
@@ -110,6 +122,7 @@ def add_session():
         return jsonify({"error": "Duration must be greater than 0"}), 400
 
     sessions.append({
+        "id": uuid.uuid4().hex,
         "username": username,
         "subject": subject,
         "duration": duration
@@ -156,6 +169,43 @@ def analytics():
         "numberOfSessions": count,
         "averageSessionDuration": avg,
     })
+
+
+@app.route("/edit_session/<session_id>", methods=["POST"])
+def edit_session(session_id):
+    username = get_current_username()
+    if not username:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json or {}
+    has_subject = "subject" in data
+    has_duration = "duration" in data
+
+    if not has_subject and not has_duration:
+        return jsonify({"error": "Provide at least one field to update"}), 400
+
+    for session_item in sessions:
+        if session_item.get("id") == session_id and (session_item.get("username") == username or "username" not in session_item):
+            if has_subject:
+                subject = (data.get("subject") or "").strip()
+                if not subject:
+                    return jsonify({"error": "Subject cannot be empty"}), 400
+                session_item["subject"] = subject
+
+            if has_duration:
+                try:
+                    duration = float(data.get("duration"))
+                except (TypeError, ValueError):
+                    return jsonify({"error": "Duration must be a number"}), 400
+
+                if duration <= 0:
+                    return jsonify({"error": "Duration must be greater than 0"}), 400
+                session_item["duration"] = duration
+
+            save_sessions(sessions)
+            return jsonify({"message": "Session updated", "session": session_item})
+
+    return jsonify({"error": "Session not found"}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)

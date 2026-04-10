@@ -56,6 +56,24 @@ button:hover {
     color: white;
 }
 
+.edit {
+    background-color: #ff9800;
+    color: white;
+    padding: 6px 12px;
+}
+
+.save {
+    background-color: #2e7d32;
+    color: white;
+    padding: 6px 12px;
+}
+
+.cancel {
+    background-color: #616161;
+    color: white;
+    padding: 6px 12px;
+}
+
 #status {
     margin-top: 10px;
     font-weight: bold;
@@ -100,4 +118,24 @@ li {
     margin: 5px;
     padding: 8px;
     border-radius: 8px;
+}
+
+.session-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.edit-form {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-form input {
+    margin: 0;
+    width: 170px;
 }
