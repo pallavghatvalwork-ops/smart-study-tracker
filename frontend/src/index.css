@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0f172a;
+  --muted: #5f6d7c;
+  --surface: #ffffff;
+  --ring-start: #f59e0b;
+  --ring-end: #ef4444;
+  --cool-start: #22d3ee;
+  --cool-end: #0ea5e9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Sora', 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background: #f8fafc;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.streak-card {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84));
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.flame-pulse {
+  animation: flamePulse 1.25s ease-in-out infinite;
+}
+
+@keyframes flamePulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0.2));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.55));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0.2));
+  }
+}
+
+.snow-shimmer {
+  animation: snowShimmer 2s ease-in-out infinite;
+}
+
+@keyframes snowShimmer {
+  0%,
+  100% {
+    transform: rotate(0deg);
+    opacity: 0.84;
+  }
+  50% {
+    transform: rotate(9deg);
+    opacity: 1;
+  }
+}
+
+.snap-check {
+  animation: snapCheck 260ms cubic-bezier(0.2, 0.95, 0.15, 1.2);
+}
+
+@keyframes snapCheck {
+  0% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.snap-row-out {
+  animation: snapRowOut 420ms ease forwards;
+}
+
+@keyframes snapRowOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
