@@ -10,7 +10,7 @@ body {
 
 .container {
     background: white;
-    width: 400px;
+    width: min(680px, 92%);
     margin: 50px auto;
     padding: 20px;
     border-radius: 15px;
@@ -59,6 +59,35 @@ button:hover {
 #status {
     margin-top: 10px;
     font-weight: bold;
+}
+
+.analytics {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.card p {
+    margin: 0;
+    font-size: 13px;
+    color: #475569;
+}
+
+.card h3 {
+    margin: 5px 0 0;
 }
 
 ul {
